@@ -18,9 +18,28 @@
 #
 ---
 include:
+ # 右手（親）は名前だけ変えて台数分作る。
+ #   CONFIG_BT_DEVICE_NAME    … Bluetooth の一覧に出る名前（16バイトまで。漢字は1文字3バイト）
+ #   CONFIG_ZMK_KEYBOARD_NAME … USB の製品名・ZMK Studio に出る名前（英数字にしておく）
+ # ZMK の CI は cmake-args をシェルにそのまま渡すので、文字列の引用符は \" と書く。
+ # 初号機（F4:33:68:1E:3A:D1）→ roBa_R_1.uf2
  - board: seeeduino_xiao_ble
    shield: roBa_R
    snippet: studio-rpc-usb-uart
+   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-1\" -DCONFIG_BT_DEVICE_NAME=\"初号機\"
+   artifact-name: roBa_R_1
+ # 弐号機（C5:CF:7A:57:2D:ED）→ roBa_R_2.uf2
+ - board: seeeduino_xiao_ble
+   shield: roBa_R
+   snippet: studio-rpc-usb-uart
+   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-2\" -DCONFIG_BT_DEVICE_NAME=\"弐号機\"
+   artifact-name: roBa_R_2
+ # 参号機（購入予定）→ roBa_R_3.uf2
+ - board: seeeduino_xiao_ble
+   shield: roBa_R
+   snippet: studio-rpc-usb-uart
+   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-3\" -DCONFIG_BT_DEVICE_NAME=\"参号機\"
+   artifact-name: roBa_R_3
  - board: seeeduino_xiao_ble
    shield: roBa_L
  - board: seeeduino_xiao_ble
