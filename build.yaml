@@ -22,23 +22,25 @@ include:
  #   CONFIG_BT_DEVICE_NAME    … Bluetooth の一覧に出る名前（16バイトまで。漢字は1文字3バイト）
  #   CONFIG_ZMK_KEYBOARD_NAME … USB の製品名・ZMK Studio に出る名前（英数字にしておく）
  # ZMK の CI は cmake-args をシェルにそのまま渡すので、文字列の引用符は \" と書く。
+ #   CONFIG_PMW3610_ORIENTATION_* … トラックボールの向き。機体ごとに違う（初号機は以前のファームで 180、弐号機は 0 で使っていた。
+ #   参号機は元の roBa 設定と同じ 180 にしてあるので、届いたら動きを見て必要なら直す）
  # 初号機（F4:33:68:1E:3A:D1）→ roBa_R_1.uf2
  - board: seeeduino_xiao_ble
    shield: roBa_R
    snippet: studio-rpc-usb-uart
-   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-1\" -DCONFIG_BT_DEVICE_NAME=\"初号機\"
+   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-1\" -DCONFIG_BT_DEVICE_NAME=\"初号機\" -DCONFIG_PMW3610_ORIENTATION_180=y
    artifact-name: roBa_R_1
  # 弐号機（C5:CF:7A:57:2D:ED）→ roBa_R_2.uf2
  - board: seeeduino_xiao_ble
    shield: roBa_R
    snippet: studio-rpc-usb-uart
-   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-2\" -DCONFIG_BT_DEVICE_NAME=\"弐号機\"
+   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-2\" -DCONFIG_BT_DEVICE_NAME=\"弐号機\" -DCONFIG_PMW3610_ORIENTATION_0=y
    artifact-name: roBa_R_2
  # 参号機（購入予定）→ roBa_R_3.uf2
  - board: seeeduino_xiao_ble
    shield: roBa_R
    snippet: studio-rpc-usb-uart
-   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-3\" -DCONFIG_BT_DEVICE_NAME=\"参号機\"
+   cmake-args: -DCONFIG_ZMK_KEYBOARD_NAME=\"roBa-3\" -DCONFIG_BT_DEVICE_NAME=\"参号機\" -DCONFIG_PMW3610_ORIENTATION_180=y
    artifact-name: roBa_R_3
  - board: seeeduino_xiao_ble
    shield: roBa_L
