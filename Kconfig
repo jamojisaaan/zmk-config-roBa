@@ -1,0 +1,8 @@
+config ROBA_FORCE_BT_NAME
+    bool "Overwrite the stored Bluetooth name with CONFIG_BT_DEVICE_NAME at boot"
+    default y if ZMK_SPLIT_ROLE_CENTRAL && BT_DEVICE_NAME_DYNAMIC && BT_SETTINGS
+    help
+      Zephyr restores a previously stored Bluetooth name (setting bt/name) and
+      prefers it over the firmware default, so a renamed firmware keeps the old
+      name. This re-applies CONFIG_BT_DEVICE_NAME a few seconds after boot.
+      Enabled only on the central (right) half. See src/force_bt_name.c.
