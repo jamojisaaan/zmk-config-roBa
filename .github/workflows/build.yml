@@ -3,3 +3,58 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3-branch
+
+  # ビルド結果（UF2）と失敗したジョブのログを build-output ブランチに置く。
+  # Actions の成果物やログはブラウザでログインしないと取り出せないため、git で取得できるようにする。
+  # （GITHUB_TOKEN による push は新しいワークフローを起動しないので、ループにはならない）
+  publish:
+    needs: build
+    if: always() && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - name: Download firmware
+        if: needs.build.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: firmware
+          path: out/firmware
+
+      - name: Collect failed job logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          mkdir -p out/logs
+          gh api "repos/$REPO/actions/runs/$RUN_ID/jobs?per_page=100" \
+            --jq '.jobs[] | select(.conclusion=="failure") | "\(.id)\t\(.name)"' > failed.tsv || true
+          while IFS=$'\t' read -r id name; do
+            safe=$(printf '%s' "$name" | tr -c 'A-Za-z0-9_.-' '_' | cut -c1-90)
+            if gh api "repos/$REPO/actions/jobs/$id/logs" > full.log; then
+              tail -n 800 full.log > "out/logs/$safe.log"
+            else
+              echo "log fetch failed" > "out/logs/$safe.log"
+            fi
+          done < failed.tsv
+
+      - name: Push to build-output branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          cd out
+          {
+            echo "run: ${{ github.run_number }} (id ${{ github.run_id }})"
+            echo "commit: ${{ github.sha }}"
+            echo "build result: ${{ needs.build.result }}"
+            echo "time (UTC): $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          } > RESULT.txt
+          git init -q -b build-output
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "build output for ${{ github.sha }} (${{ needs.build.result }})"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" build-output
